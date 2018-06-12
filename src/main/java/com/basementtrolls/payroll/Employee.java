@@ -1,4 +1,10 @@
 
+package com.basementtrolls.payroll;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 /*
 This entity is used to track employee information. In this case, their name and job description.
 Spring Data REST isn’t confined to JPA. It supports many NoSQL data stores

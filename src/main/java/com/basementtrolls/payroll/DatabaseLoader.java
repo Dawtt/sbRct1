@@ -1,3 +1,9 @@
+package com.basementtrolls.payroll;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
 
 /*
 This class is marked with Spring’s @Component annotation so that it is automatically picked up by @SpringBootApplication
