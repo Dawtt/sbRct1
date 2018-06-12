@@ -1,6 +1,8 @@
 
 package com.basementtrolls.payroll;
 
+import lombok.Data;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,6 +14,7 @@ Spring Data REST isn’t confined to JPA. It supports many NoSQL data stores
 
 /*
 @Data is a Project Lombok annotation to autogenerate getters, setters, constructors, toString, hash, equals, and other things. It cuts down on the boilerplate.
+https://projectlombok.org/features/Data
 */
 @Data
 
