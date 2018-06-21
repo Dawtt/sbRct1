@@ -8,7 +8,7 @@ _____
 Production Notes:
     Possibly, a webserver will need node.js, npm, and java installed in someway. 
     mvnw may need to replace mvn. Does this allow usage of maven on a server without installing maven? Better to install maven? Does this complicate upgrades?
-
+    on the walkthrough npm installation via pom.xml: " (This ensures the binaries are NOT pulled under source control, and can be cleaned out with clean)."
 Note: The following must be done manually, and is not included in the pom.xml as in the original guide:
 Some work needs to be done understanding the relationship between maven, node.js, spring boot, and the jvm here.
     This works on my computer, because node & java are installed. So how to deploy on different types of webservers.
