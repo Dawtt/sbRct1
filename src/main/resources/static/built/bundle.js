@@ -79,6 +79,11 @@
 	var client = __webpack_require__(184);
 	
 	/*
+	In the previous section, you hardcoded the path to /api/employees. Instead, the ONLY path you should hardcode is the root.
+	 */
+	var root = '/api';
+	
+	/*
 	class Foo extends React.Component{…​} is the method to create a React component.
 	*/
 	
@@ -94,24 +99,121 @@
 	        return _this;
 	    }
 	
-	    /*
-	    componentDidMount is the API invoked after React renders a component in the DOM.
-	    */
+	    // tag::follow-2[]
 	
 	
 	    _createClass(App, [{
+	        key: 'loadFromServer',
+	        value: function loadFromServer(pageSize) {
+	            var _this2 = this;
+	
+	            follow(client, root, [{ rel: 'employees', params: { size: pageSize } }]).then(function (employeeCollection) {
+	                return client({
+	                    method: 'GET',
+	                    path: employeeCollection.entity._links.profile.href,
+	                    headers: { 'Accept': 'application/schema+json' }
+	                }).then(function (schema) {
+	                    _this2.schema = schema.entity;
+	                    return employeeCollection;
+	                });
+	            }).done(function (employeeCollection) {
+	                _this2.setState({
+	                    employees: employeeCollection.entity._embedded.employees,
+	                    attributes: Object.keys(_this2.schema.properties),
+	                    pageSize: pageSize,
+	                    links: employeeCollection.entity._links });
+	            });
+	        }
+	        // end::follow-2[]
+	
+	
+	        // tag::create[]
+	
+	    }, {
+	        key: 'onCreate',
+	        value: function onCreate(newEmployee) {
+	            var _this3 = this;
+	
+	            follow(client, root, ['employees']).then(function (employeeCollection) {
+	                return client({
+	                    method: 'POST',
+	                    path: employeeCollection.entity._links.self.href,
+	                    entity: newEmployee,
+	                    headers: { 'Content-Type': 'application/json' }
+	                });
+	            }).then(function (response) {
+	                return follow(client, root, [{ rel: 'employees', params: { 'size': _this3.state.pageSize } }]);
+	            }).done(function (response) {
+	                if (typeof response.entity._links.last != "undefined") {
+	                    _this3.onNavigate(response.entity._links.last.href);
+	                } else {
+	                    _this3.onNavigate(response.entity._links.self.href);
+	                }
+	            });
+	        }
+	        // end::create[]
+	
+	        // tag::delete[]
+	
+	    }, {
+	        key: 'onDelete',
+	        value: function onDelete(employee) {
+	            var _this4 = this;
+	
+	            client({ method: 'DELETE', path: employee._links.self.href }).done(function (response) {
+	                _this4.loadFromServer(_this4.state.pageSize);
+	            });
+	        }
+	        // end::delete[]
+	
+	        // tag::navigate[]
+	
+	    }, {
+	        key: 'onNavigate',
+	        value: function onNavigate(navUri) {
+	            var _this5 = this;
+	
+	            client({ method: 'GET', path: navUri }).done(function (employeeCollection) {
+	                _this5.setState({
+	                    employees: employeeCollection.entity._embedded.employees,
+	                    attributes: _this5.state.attributes,
+	                    pageSize: _this5.state.pageSize,
+	                    links: employeeCollection.entity._links
+	                });
+	            });
+	        }
+	        // end::navigate[]
+	
+	        // tag::update-page-size[]
+	
+	    }, {
+	        key: 'updatePageSize',
+	        value: function updatePageSize(pageSize) {
+	            if (pageSize !== this.state.pageSize) {
+	                this.loadFromServer(pageSize);
+	            }
+	        }
+	        // end::update-page-size[]
+	
+	
+	        // tag::follow-1[]
+	        /*
+	        componentDidMount is the API invoked after React renders a component in the DOM.
+	        */
+	
+	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            var _this2 = this;
 	
 	            /*
 	            In this code, the function loads data via client, a Promise compliant instance of rest.js. When it is done retrieving from /api/employees, it then invokes the function inside done() and set’s the state based on it’s HAL document (response.entity._embedded.employees). You might remember the structure of curl /api/employees earlier and see how it maps onto this structure.
-	            */
-	            client({ method: 'GET', path: '/api/employees' }).done(function (response) {
-	                _this2.setState({ employees: response.entity._embedded.employees });
+	            client({method: 'GET', path: '/api/employees'}).done(response => {
+	            this.setState({employees: response.entity._embedded.employees});
 	            });
+	            */
+	            this.loadFromServer(this.state.pageSize);
 	        }
-	
+	        // end::follow-1[]
 	        /*
 	        render is the API to "draw" the component on the screen.
 	         */
@@ -119,7 +221,17 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            return React.createElement(EmployeeList, { employees: this.state.employees });
+	            return React.createElement(
+	                'div',
+	                null,
+	                React.createElement(CreateDialog, { attributes: this.state.attributes, onCreate: this.onCreate }),
+	                React.createElement(EmployeeList, { employees: this.state.employees,
+	                    links: this.state.links,
+	                    pageSize: this.state.pageSize,
+	                    onNavigate: this.onNavigate,
+	                    onDelete: this.onDelete,
+	                    updatePageSize: this.updatePageSize })
+	            );
 	        }
 	    }]);
 	

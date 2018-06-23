@@ -1,10 +1,24 @@
+
+
+
+
+
 # sbRct1
 _____
 Code put together from spring.io guide at
 https://spring.io/guides/tutorials/react-and-spring-data-rest/
 Files contain comments from the guide explaining code, throughout
 _____
+Running Notes:
+    /target$ sudo npm install
+    /target$ npm run-script build
+        *this will run webpack
+    /sbrct1$ mvn spring-boot:run
 
+
+
+
+-----
 Production Notes:
     Possibly, a webserver will need node.js, npm, and java installed in someway. 
     mvnw may need to replace mvn. Does this allow usage of maven on a server without installing maven? Better to install maven? Does this complicate upgrades?
@@ -25,6 +39,17 @@ The webpack command will execute webpack binary, which compiles all the JavaScri
 These steps are run in sequence, essentially installing node.js, downloading JavaScript modules, and building the JS bits.
 
 -----
+
+Refresher, some commands used in guide:
+$ curl localhost:8080/api/employees/1
+curl -X POST localhost:8080/api/employees -d "{\"firstName\": \"Bilbo\", \"lastName\": \"Baggins\", \"description\": \"burglar\"}" -H "Content-Type:application/json"
+curl "http://localhost:8080/api/employees?page=1&size=2"
+curl "localhost:8080/api/employees?size=2"
+
+When using "&" in URL query parameters, the command line thinks it’s a line break. Wrap the whole URL with quotation marks to bypass that.
+
+
+
 
 
 

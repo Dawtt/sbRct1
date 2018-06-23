@@ -23,6 +23,11 @@ client is custom code that configures rest.js to include support for HAL, URI Te
 const client = require('./client');
 
 /*
+In the previous section, you hardcoded the path to /api/employees. Instead, the ONLY path you should hardcode is the root.
+ */
+var root = '/api';
+
+/*
 class Foo extends React.Component{…​} is the method to create a React component.
 */
 class App extends React.Component {
@@ -32,6 +37,83 @@ class App extends React.Component {
 		this.state = {employees: []};
 	}
 
+    // tag::follow-2[]
+    loadFromServer(pageSize) {
+        follow(client, root, [
+            {rel: 'employees', params: {size: pageSize}}]
+        ).then(employeeCollection => {
+            return client({
+                method: 'GET',
+                path: employeeCollection.entity._links.profile.href,
+                headers: {'Accept': 'application/schema+json'}
+            }).then(schema => {
+                this.schema = schema.entity;
+                return employeeCollection;
+            });
+        }).done(employeeCollection => {
+            this.setState({
+                employees: employeeCollection.entity._embedded.employees,
+                attributes: Object.keys(this.schema.properties),
+                pageSize: pageSize,
+                links: employeeCollection.entity._links});
+        });
+    }
+    // end::follow-2[]
+
+
+    // tag::create[]
+    onCreate(newEmployee) {
+        follow(client, root, ['employees']).then(employeeCollection => {
+            return client({
+                method: 'POST',
+                path: employeeCollection.entity._links.self.href,
+                entity: newEmployee,
+                headers: {'Content-Type': 'application/json'}
+            })
+        }).then(response => {
+            return follow(client, root, [
+                {rel: 'employees', params: {'size': this.state.pageSize}}]);
+        }).done(response => {
+            if (typeof response.entity._links.last != "undefined") {
+                this.onNavigate(response.entity._links.last.href);
+            } else {
+                this.onNavigate(response.entity._links.self.href);
+            }
+        });
+    }
+    // end::create[]
+
+    // tag::delete[]
+    onDelete(employee) {
+        client({method: 'DELETE', path: employee._links.self.href}).done(response => {
+            this.loadFromServer(this.state.pageSize);
+        });
+    }
+    // end::delete[]
+
+    // tag::navigate[]
+    onNavigate(navUri) {
+        client({method: 'GET', path: navUri}).done(employeeCollection => {
+            this.setState({
+                employees: employeeCollection.entity._embedded.employees,
+                attributes: this.state.attributes,
+                pageSize: this.state.pageSize,
+                links: employeeCollection.entity._links
+            });
+        });
+    }
+    // end::navigate[]
+
+    // tag::update-page-size[]
+    updatePageSize(pageSize) {
+        if (pageSize !== this.state.pageSize) {
+            this.loadFromServer(pageSize);
+        }
+    }
+    // end::update-page-size[]
+
+
+    // tag::follow-1[]
 	/*
 	componentDidMount is the API invoked after React renders a component in the DOM.
 	*/
@@ -39,21 +121,33 @@ class App extends React.Component {
 
         /*
         In this code, the function loads data via client, a Promise compliant instance of rest.js. When it is done retrieving from /api/employees, it then invokes the function inside done() and set’s the state based on it’s HAL document (response.entity._embedded.employees). You might remember the structure of curl /api/employees earlier and see how it maps onto this structure.
-		*/
+
 		client({method: 'GET', path: '/api/employees'}).done(response => {
 			this.setState({employees: response.entity._embedded.employees});
 		});
-	}
+        */
+        this.loadFromServer(this.state.pageSize);
 
+	}
+    // end::follow-1[]
 	/*
 	render is the API to "draw" the component on the screen.
 	 */
-	render() {
-		return (
-			<EmployeeList employees={this.state.employees}/>
-		)
-	}
+    render() {
+        return (
+            <div>
+                <CreateDialog attributes={this.state.attributes} onCreate={this.onCreate}/>
+                <EmployeeList employees={this.state.employees}
+                              links={this.state.links}
+                              pageSize={this.state.pageSize}
+                              onNavigate={this.onNavigate}
+                              onDelete={this.onDelete}
+                              updatePageSize={this.updatePageSize}/>
+            </div>
+        )
+    }
 }
+
 /*
 Uppercase is convention for React components
  */
@@ -107,7 +201,76 @@ class Employee extends React.Component{
             </tr>
         )
     }
-}ReactDOM.render(
+}
+// tag::create-dialog[]
+class CreateDialog extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
+        e.preventDefault();
+        var newEmployee = {};
+        /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
+        this.props.attributes.forEach(attribute => {
+            /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
+            newEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+        });
+        this.props.onCreate(newEmployee);
+
+        // clear out the dialog's inputs
+        this.props.attributes.forEach(attribute => {
+            ReactDOM.findDOMNode(this.refs[attribute]).value = '';
+        });
+
+        // Navigate away from the dialog to hide it.
+        window.location = "#";
+    }
+
+    render() {
+        /*
+        Your code maps over the JSON Schema data found in the attributes property and converts it into an array of <p><input></p> elements.
+         */
+        var inputs = this.props.attributes.map(attribute =>
+            /*
+            key is again needed by React to distinguish between multiple child nodes. It’s a simple text-based entry field.
+             */
+            <p key={attribute}>
+                {/*placeholder is where we can show the user with field is which. You may used to having a name attribute, but it’s not necessary. With React, ref is the mechanism to grab a particular DOM node.
+                This represents the dynamic nature of the component, driven by loading data from the server.*/}
+                <input type="text" placeholder={attribute} ref={attribute} className="field" />
+            </p>
+        );
+
+        return (
+            /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
+            <div>
+                <a href="#createEmployee">Create</a>
+
+                {/*Nestled inside <div id="createEmployee"> is a form where your dynamic list of input fields are injected followed by the Create button. That button has an onClick={this.handleSubmit} event handler. This is the React way of registering an event handler.*/}
+                <div id="createEmployee" className="modalDialog">
+                    <div>
+                        <a href="#" title="Close" className="close">X</a>
+
+                        <h2>Create new employee</h2>
+
+                        <form>
+                            {inputs}
+                            <button onClick={this.handleSubmit}>Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+}
+// end::create-dialog[]
+
+ReactDOM.render(
     <App />,
     document.getElementById('react')
 )
