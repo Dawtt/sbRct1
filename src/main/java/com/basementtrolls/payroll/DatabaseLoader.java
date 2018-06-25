@@ -30,6 +30,11 @@ public class DatabaseLoader implements CommandLineRunner {
 	*/
 	public void run(String... strings) throws Exception {
 		this.repository.save(new Employee("Frodo", "Baggins", "ring bearer"));
+		this.repository.save(new Employee("Bilbo", "Baggins", "burglar"));
+		this.repository.save(new Employee("Gandalf", "the Grey", "wizard"));
+		this.repository.save(new Employee("Samwise", "Gamgee", "gardener"));
+		this.repository.save(new Employee("Meriadoc", "Brandybuck", "pony rider"));
+		this.repository.save(new Employee("Peregrin", "Took", "pipe smoker"));
 	}
 /*
 One of the biggest, most powerful features of Spring Data is its ability to write JPA queries for you. This not only cuts down on your development time, but also reduces the risk of bugs and errors. Spring Data looks at the name of methods in a repository class and figures out the operation you need including saving, deleting, and finding.
