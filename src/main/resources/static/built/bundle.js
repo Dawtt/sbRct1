@@ -97,7 +97,11 @@
 	
 	        var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
-	        _this.state = { employees: [] };
+	        _this.state = { employees: [], attributes: [], pageSize: 2, links: {} };
+	        _this.updatePageSize = _this.updatePageSize.bind(_this);
+	        _this.onCreate = _this.onCreate.bind(_this);
+	        _this.onDelete = _this.onDelete.bind(_this);
+	        _this.onNavigate = _this.onNavigate.bind(_this);
 	        return _this;
 	    }
 	
@@ -127,7 +131,6 @@
 	            });
 	        }
 	        // end::follow-2[]
-	
 	
 	        // tag::create[]
 	
@@ -259,25 +262,122 @@
 	    return App;
 	}(React.Component);
 	
+	// tag::create-dialog[]
+	
+	
+	var CreateDialog = function (_React$Component2) {
+	    _inherits(CreateDialog, _React$Component2);
+	
+	    function CreateDialog(props) {
+	        _classCallCheck(this, CreateDialog);
+	
+	        var _this6 = _possibleConstructorReturn(this, (CreateDialog.__proto__ || Object.getPrototypeOf(CreateDialog)).call(this, props));
+	
+	        _this6.handleSubmit = _this6.handleSubmit.bind(_this6);
+	        return _this6;
+	    }
+	
+	    _createClass(CreateDialog, [{
+	        key: 'handleSubmit',
+	        value: function handleSubmit(e) {
+	            var _this7 = this;
+	
+	            /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
+	            e.preventDefault();
+	            var newEmployee = {};
+	            /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
+	            this.props.attributes.forEach(function (attribute) {
+	                /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
+	                newEmployee[attribute] = ReactDOM.findDOMNode(_this7.refs[attribute]).value.trim();
+	            });
+	            /*After iterating over every input and building up the newEmployee object, we invoke a callback to onCreate() the new employee. This function is up top inside App.onCreate and was provided to this React component as another property.*/
+	            this.props.onCreate(newEmployee);
+	
+	            // clear out the dialog's inputs
+	            this.props.attributes.forEach(function (attribute) {
+	                ReactDOM.findDOMNode(_this7.refs[attribute]).value = '';
+	            });
+	
+	            // Navigate away from the dialog to hide it.
+	            window.location = "#";
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var inputs = this.props.attributes.map(function (attribute) {
+	                return React.createElement(
+	                    'p',
+	                    { key: attribute },
+	                    React.createElement('input', { type: 'text', placeholder: attribute, ref: attribute, className: 'field' })
+	                );
+	            });
+	
+	            return (
+	                /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#createEmployee' },
+	                        'Create'
+	                    ),
+	                    React.createElement(
+	                        'div',
+	                        { id: 'createEmployee', className: 'modalDialog' },
+	                        React.createElement(
+	                            'div',
+	                            null,
+	                            React.createElement(
+	                                'a',
+	                                { href: '#', title: 'Close', className: 'close' },
+	                                'X'
+	                            ),
+	                            React.createElement(
+	                                'h2',
+	                                null,
+	                                'Create new employee'
+	                            ),
+	                            React.createElement(
+	                                'form',
+	                                null,
+	                                inputs,
+	                                React.createElement(
+	                                    'button',
+	                                    { onClick: this.handleSubmit },
+	                                    'Create'
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return CreateDialog;
+	}(React.Component);
+	// end::create-dialog[]
+	
 	/*
 	Uppercase is convention for React components
 	 */
 	
 	
-	var EmployeeList = function (_React$Component2) {
-	    _inherits(EmployeeList, _React$Component2);
+	var EmployeeList = function (_React$Component3) {
+	    _inherits(EmployeeList, _React$Component3);
 	
 	    function EmployeeList(props) {
 	        _classCallCheck(this, EmployeeList);
 	
-	        var _this6 = _possibleConstructorReturn(this, (EmployeeList.__proto__ || Object.getPrototypeOf(EmployeeList)).call(this, props));
+	        var _this8 = _possibleConstructorReturn(this, (EmployeeList.__proto__ || Object.getPrototypeOf(EmployeeList)).call(this, props));
 	
-	        _this6.handleNavFirst = _this6.handleNavFirst.bind(_this6);
-	        _this6.handleNavPrev = _this6.handleNavPrev.bind(_this6);
-	        _this6.handleNavNext = _this6.handleNavNext.bind(_this6);
-	        _this6.handleNavLast = _this6.handleNavLast.bind(_this6);
-	        _this6.handleInput = _this6.handleInput.bind(_this6);
-	        return _this6;
+	        _this8.handleNavFirst = _this8.handleNavFirst.bind(_this8);
+	        _this8.handleNavPrev = _this8.handleNavPrev.bind(_this8);
+	        _this8.handleNavNext = _this8.handleNavNext.bind(_this8);
+	        _this8.handleNavLast = _this8.handleNavLast.bind(_this8);
+	        _this8.handleInput = _this8.handleInput.bind(_this8);
+	        return _this8;
 	    }
 	
 	    // tag::handle-page-size-updates[]
@@ -336,10 +436,10 @@
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            var _this7 = this;
+	            var _this9 = this;
 	
 	            var employees = this.props.employees.map(function (employee) {
-	                return React.createElement(Employee, { key: employee._links.self.href, employee: employee, onDelete: _this7.props.onDelete });
+	                return React.createElement(Employee, { key: employee._links.self.href, employee: employee, onDelete: _this9.props.onDelete });
 	            });
 	            /*conditionally display the controls based on which links appear in the hypermedia links*/
 	            /*As in the previous section, it still transforms this.props.employees into an array of <Element /> components. Then it builds up an array of navLinks, an array of HTML buttons.*/
@@ -453,8 +553,8 @@
 	    return EmployeeList;
 	}(React.Component);
 	
-	var Employee = function (_React$Component3) {
-	    _inherits(Employee, _React$Component3);
+	var Employee = function (_React$Component4) {
+	    _inherits(Employee, _React$Component4);
 	
 	    /*This updated version of the Employee component shows an extra entry at the end of the row, a delete button. It is registered to invoke this.handleDelete when clicked upon. The handleDelete() function can then invoke the callback passed down while supplying the contextually important this.props.employee record.*/
 	
@@ -462,10 +562,10 @@
 	    function Employee(props) {
 	        _classCallCheck(this, Employee);
 	
-	        var _this8 = _possibleConstructorReturn(this, (Employee.__proto__ || Object.getPrototypeOf(Employee)).call(this, props));
+	        var _this10 = _possibleConstructorReturn(this, (Employee.__proto__ || Object.getPrototypeOf(Employee)).call(this, props));
 	
-	        _this8.handleDelete = _this8.handleDelete.bind(_this8);
-	        return _this8;
+	        _this10.handleDelete = _this10.handleDelete.bind(_this10);
+	        return _this10;
 	    }
 	    /*Deleting entries is much easier. Get a hold of its HAL-based record and apply DELETE to its self link.*/
 	
@@ -517,103 +617,6 @@
 	
 	    return Employee;
 	}(React.Component);
-	// tag::create-dialog[]
-	
-	
-	var CreateDialog = function (_React$Component4) {
-	    _inherits(CreateDialog, _React$Component4);
-	
-	    function CreateDialog(props) {
-	        _classCallCheck(this, CreateDialog);
-	
-	        var _this9 = _possibleConstructorReturn(this, (CreateDialog.__proto__ || Object.getPrototypeOf(CreateDialog)).call(this, props));
-	
-	        _this9.handleSubmit = _this9.handleSubmit.bind(_this9);
-	        return _this9;
-	    }
-	
-	    _createClass(CreateDialog, [{
-	        key: 'handleSubmit',
-	        value: function handleSubmit(e) {
-	            var _this10 = this;
-	
-	            /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
-	            e.preventDefault();
-	            var newEmployee = {};
-	            /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
-	            this.props.attributes.forEach(function (attribute) {
-	                /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
-	                newEmployee[attribute] = ReactDOM.findDOMNode(_this10.refs[attribute]).value.trim();
-	            });
-	            /*After iterating over every input and building up the newEmployee object, we invoke a callback to onCreate() the new employee. This function is up top inside App.onCreate and was provided to this React component as another property.*/
-	            this.props.onCreate(newEmployee);
-	
-	            // clear out the dialog's inputs
-	            this.props.attributes.forEach(function (attribute) {
-	                ReactDOM.findDOMNode(_this10.refs[attribute]).value = '';
-	            });
-	
-	            // Navigate away from the dialog to hide it.
-	            window.location = "#";
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	
-	            var inputs = this.props.attributes.map(function (attribute) {
-	                return React.createElement(
-	                    'p',
-	                    { key: attribute },
-	                    React.createElement('input', { type: 'text', placeholder: attribute, ref: attribute, className: 'field' })
-	                );
-	            });
-	
-	            return (
-	                /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
-	                React.createElement(
-	                    'div',
-	                    null,
-	                    React.createElement(
-	                        'a',
-	                        { href: '#createEmployee' },
-	                        'Create'
-	                    ),
-	                    React.createElement(
-	                        'div',
-	                        { id: 'createEmployee', className: 'modalDialog' },
-	                        React.createElement(
-	                            'div',
-	                            null,
-	                            React.createElement(
-	                                'a',
-	                                { href: '#', title: 'Close', className: 'close' },
-	                                'X'
-	                            ),
-	                            React.createElement(
-	                                'h2',
-	                                null,
-	                                'Create new employee'
-	                            ),
-	                            React.createElement(
-	                                'form',
-	                                null,
-	                                inputs,
-	                                React.createElement(
-	                                    'button',
-	                                    { onClick: this.handleSubmit },
-	                                    'Create'
-	                                )
-	                            )
-	                        )
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-	
-	    return CreateDialog;
-	}(React.Component);
-	// end::create-dialog[]
 	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
 

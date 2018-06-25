@@ -17,7 +17,8 @@
     "babel-preset-react": "^6.16.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.config.js"
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --watch -d"
   },
   "repository": {
     "type": "git",

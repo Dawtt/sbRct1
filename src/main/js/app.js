@@ -1,3 +1,4 @@
+'use strict';
 const React = require('react');
 const ReactDOM = require('react-dom');
 
@@ -36,7 +37,11 @@ class App extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {employees: []};
+		this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
+		this.updatePageSize = this.updatePageSize.bind(this);
+		this.onCreate = this.onCreate.bind(this);
+		this.onDelete = this.onDelete.bind(this);
+		this.onNavigate = this.onNavigate.bind(this);
 	}
 
     // tag::follow-2[]
@@ -61,7 +66,6 @@ class App extends React.Component {
         });
     }
     // end::follow-2[]
-
 
     // tag::create[]
     onCreate(newEmployee) {
@@ -169,6 +173,67 @@ class App extends React.Component {
         )
     }
 }
+
+// tag::create-dialog[]
+class CreateDialog extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
+        e.preventDefault();
+        var newEmployee = {};
+        /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
+        this.props.attributes.forEach(attribute => {
+            /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
+            newEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+        });
+        /*After iterating over every input and building up the newEmployee object, we invoke a callback to onCreate() the new employee. This function is up top inside App.onCreate and was provided to this React component as another property.*/
+        this.props.onCreate(newEmployee);
+
+        // clear out the dialog's inputs
+        this.props.attributes.forEach(attribute => {
+            ReactDOM.findDOMNode(this.refs[attribute]).value = '';
+        });
+
+        // Navigate away from the dialog to hide it.
+        window.location = "#";
+    }
+
+    render() {
+        var inputs = this.props.attributes.map(attribute =>
+            <p key={attribute}>
+                <input type="text" placeholder={attribute} ref={attribute} className="field" />
+            </p>
+        );
+
+        return (
+            /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
+            <div>
+                <a href="#createEmployee">Create</a>
+
+                {/*Nestled inside <div id="createEmployee"> is a form where your dynamic list of input fields are injected followed by the Create button. That button has an onClick={this.handleSubmit} event handler. This is the React way of registering an event handler.*/}
+                <div id="createEmployee" className="modalDialog">
+                    <div>
+                        <a href="#" title="Close" className="close">X</a>
+
+                        <h2>Create new employee</h2>
+
+                        <form>
+                            {inputs}
+                            <button onClick={this.handleSubmit}>Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+}
+// end::create-dialog[]
 
 /*
 Uppercase is convention for React components
@@ -333,69 +398,7 @@ class Employee extends React.Component{
         )
     }
 }
-// tag::create-dialog[]
-class CreateDialog extends React.Component {
 
-    constructor(props) {
-        super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    handleSubmit(e) {
-        /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
-        e.preventDefault();
-        var newEmployee = {};
-        /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
-        this.props.attributes.forEach(attribute => {
-            /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
-            newEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
-        });
-        /*After iterating over every input and building up the newEmployee object, we invoke a callback to onCreate() the new employee. This function is up top inside App.onCreate and was provided to this React component as another property.*/
-        this.props.onCreate(newEmployee);
-
-        // clear out the dialog's inputs
-        this.props.attributes.forEach(attribute => {
-            ReactDOM.findDOMNode(this.refs[attribute]).value = '';
-        });
-
-        // Navigate away from the dialog to hide it.
-        window.location = "#";
-    }
-
-    render() {
-
-        var inputs = this.props.attributes.map(attribute =>
-
-            <p key={attribute}>
-
-                <input type="text" placeholder={attribute} ref={attribute} className="field" />
-            </p>
-        );
-
-        return (
-            /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
-            <div>
-                <a href="#createEmployee">Create</a>
-
-                {/*Nestled inside <div id="createEmployee"> is a form where your dynamic list of input fields are injected followed by the Create button. That button has an onClick={this.handleSubmit} event handler. This is the React way of registering an event handler.*/}
-                <div id="createEmployee" className="modalDialog">
-                    <div>
-                        <a href="#" title="Close" className="close">X</a>
-
-                        <h2>Create new employee</h2>
-
-                        <form>
-                            {inputs}
-                            <button onClick={this.handleSubmit}>Create</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        )
-    }
-
-}
-// end::create-dialog[]
 
 ReactDOM.render(
     <App />,
