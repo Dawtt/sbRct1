@@ -25,9 +25,7 @@ const client = require('./client');
 /*
 In the previous section, you hardcoded the path to /api/employees. Instead, the ONLY path you should hardcode is the root.
  */
-const follow = require('./follow'); // function to hop multiple links by "rel"
-
-const root = '/api';
+var root = '/api';
 
 /*
 class Foo extends React.Component{…​} is the method to create a React component.
@@ -363,11 +361,16 @@ class CreateDialog extends React.Component {
     }
 
     render() {
-
+        /*
+        Your code maps over the JSON Schema data found in the attributes property and converts it into an array of <p><input></p> elements.
+         */
         var inputs = this.props.attributes.map(attribute =>
-
+            /*
+            key is again needed by React to distinguish between multiple child nodes. It’s a simple text-based entry field.
+             */
             <p key={attribute}>
-
+                {/*placeholder is where we can show the user with field is which. You may used to having a name attribute, but it’s not necessary. With React, ref is the mechanism to grab a particular DOM node.
+                This represents the dynamic nature of the component, driven by loading data from the server.*/}
                 <input type="text" placeholder={attribute} ref={attribute} className="field" />
             </p>
         );
