@@ -10,13 +10,11 @@ https://spring.io/guides/tutorials/react-and-spring-data-rest/
 Files contain comments from the guide explaining code, throughout
 _____
 Running Notes:
-    /target$ sudo npm install
-    /target$ npm run-script build
+    /sbrct1$ sudo npm install
+    /sbrct1$ npm run-script build
         *this will run webpack
     /sbrct1$ mvn spring-boot:run
-
-
-
+    open localhost:8080
 
 -----
 Production Notes:

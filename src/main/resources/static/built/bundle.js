@@ -134,6 +134,7 @@
 	        value: function onCreate(newEmployee) {
 	            var _this3 = this;
 	
+	            /*Once again, use the follow() function to navigate to the employees resource where POST operations are performed. In this case, there was no need to apply any parameters, so the string-based array of rels is fine. In this situation, the POST call is returned. This allows the next then() clause to handle processing the outcome of the POST.*/
 	            follow(client, root, ['employees']).then(function (employeeCollection) {
 	                return client({
 	                    method: 'POST',
@@ -143,17 +144,34 @@
 	                });
 	            }).then(function (response) {
 	                return follow(client, root, [{ rel: 'employees', params: { 'size': _this3.state.pageSize } }]);
+	                /*New records are typically added to the end of the dataset. Since you are looking at a certain page, it’s logical to expect the new employee record to not be on the current page. To handle this, you need to fetch a new batch of data with the same page size applied. That promise is returned for the final clause inside done().*/
 	            }).done(function (response) {
+	                /*Since the user probably wants to see the newly created employee, you can then use the hypermedia controls and navigate to the last entry. This introduces the concept of paging in our UI.*/
 	                if (typeof response.entity._links.last != "undefined") {
 	                    _this3.onNavigate(response.entity._links.last.href);
 	                } else {
 	                    _this3.onNavigate(response.entity._links.self.href);
 	                }
+	                /*First time using a promise-based API? Promises are a way to kick of asynchronous operations and then register a function to respond when the task is done. Promises are designed to be chained together to avoid "callback hell".
+	                * The secret thing to remember with promises is that then() functions need to return something, whether it’s a value or another promise. done() functions do NOT return anything, and you don’t chain anything after it. In case you haven’t noticed yet, client (which is an instance of rest from rest.js) as well as the follow function return promises.*/
+	                /*ex:
+	                when.promise(async_func_call())
+	                .then(function(results) {
+	                //process the outcome of async_func_call
+	                 })
+	                .then(function(more_results) {
+	                    //process the previous then() return value
+	                })
+	                .done(function(yet_more) {
+	                    //process the previous then() and wrap things up.
+	                });
+	                */
 	            });
 	        }
 	        // end::create[]
 	
 	        // tag::delete[]
+	        /*The behavior to apply after deleting a record with a page-based UI is a bit tricky. In this case, it reloads the whole data from the server, applying the same page size. Then it shows the first page. If you are deleting the last record on the last page, it will jump to the first page.*/
 	
 	    }, {
 	        key: 'onDelete',
@@ -190,6 +208,7 @@
 	        key: 'updatePageSize',
 	        value: function updatePageSize(pageSize) {
 	            if (pageSize !== this.state.pageSize) {
+	                /*Because a new page size causes changes to all the navigation links, it’s best to refetch the data and start from the beginning.*/
 	                this.loadFromServer(pageSize);
 	            }
 	        }
@@ -237,6 +256,7 @@
 	
 	    return App;
 	}(React.Component);
+	
 	/*
 	Uppercase is convention for React components
 	 */
@@ -245,67 +265,187 @@
 	var EmployeeList = function (_React$Component2) {
 	    _inherits(EmployeeList, _React$Component2);
 	
-	    function EmployeeList() {
+	    function EmployeeList(props) {
 	        _classCallCheck(this, EmployeeList);
 	
-	        return _possibleConstructorReturn(this, (EmployeeList.__proto__ || Object.getPrototypeOf(EmployeeList)).apply(this, arguments));
+	        var _this6 = _possibleConstructorReturn(this, (EmployeeList.__proto__ || Object.getPrototypeOf(EmployeeList)).call(this, props));
+	
+	        _this6.handleNavFirst = _this6.handleNavFirst.bind(_this6);
+	        _this6.handleNavPrev = _this6.handleNavPrev.bind(_this6);
+	        _this6.handleNavNext = _this6.handleNavNext.bind(_this6);
+	        _this6.handleNavLast = _this6.handleNavLast.bind(_this6);
+	        _this6.handleInput = _this6.handleInput.bind(_this6);
+	        return _this6;
 	    }
 	
+	    // tag::handle-page-size-updates[]
+	
+	
 	    _createClass(EmployeeList, [{
+	        key: 'handleInput',
+	        value: function handleInput(e) {
+	            /*stops the event from bubbling up.*/
+	            e.preventDefault();
+	            /*it uses the ref attribute of the <input> to find the DOM node and extract its value, all through React’s findDOMNode() helper function. */
+	            var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+	            /*tests if the input is really a number by checking if it’s a string of digits.*/
+	            if (/^[0-9]+$/.test(pageSize)) {
+	                /*If so, it invokes the callback, sending the new page size to the App React component. If not, the character just entered is stripped off the input.*/
+	                this.props.updatePageSize(pageSize);
+	            } else {
+	                ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+	            }
+	        }
+	        // end::handle-page-size-updates[]
+	
+	        // tag::handle-nav[]
+	
+	        /*Each of these functions intercepts the default event and stops it from bubbling up. Then it invokes the onNavigate() function with the proper hypermedia link*/
+	
+	    }, {
+	        key: 'handleNavFirst',
+	        value: function handleNavFirst(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.first.href);
+	        }
+	    }, {
+	        key: 'handleNavPrev',
+	        value: function handleNavPrev(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.prev.href);
+	        }
+	    }, {
+	        key: 'handleNavNext',
+	        value: function handleNavNext(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.next.href);
+	        }
+	    }, {
+	        key: 'handleNavLast',
+	        value: function handleNavLast(e) {
+	            e.preventDefault();
+	            this.props.onNavigate(this.props.links.last.href);
+	        }
+	        // end::handle-nav[]
+	
+	        // tag::employee-list-render[]
+	
+	
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this7 = this;
+	
+	            var employees = this.props.employees.map(function (employee) {
+	                return React.createElement(Employee, { key: employee._links.self.href, employee: employee, onDelete: _this7.props.onDelete });
+	            });
+	            /*conditionally display the controls based on which links appear in the hypermedia links*/
+	            /*As in the previous section, it still transforms this.props.employees into an array of <Element /> components. Then it builds up an array of navLinks, an array of HTML buttons.*/
+	            var navLinks = [];
+	            if ("first" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'first', onClick: this.handleNavFirst },
+	                    '<<'
+	                ));
+	            }
+	            /*Because React is based on XML, you can’t put "<" inside the <button> element. You must instead use the encoded version.*/
+	            if ("prev" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'prev', onClick: this.handleNavPrev },
+	                    '<'
+	                ));
+	            }
+	            if ("next" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'next', onClick: this.handleNavNext },
+	                    '>'
+	                ));
+	            }
+	            if ("last" in this.props.links) {
+	                navLinks.push(React.createElement(
+	                    'button',
+	                    { key: 'last', onClick: this.handleNavLast },
+	                    '>>'
+	                ));
+	            }
+	
 	            /*
 	            Using JavaScript’s map function, this.props.employees is transformed from an array of employee records into an array of <Element /> React components
 	            * */
-	            var employees = this.props.employees.map(function (employee) {
-	                return (
+	            //var employees = this.props.employees.map(employee =>
+	            /*
+	            * This shows a new React component (note the uppercase format) being created along with two properties: key and data. These are supplied the values from employee._links.self.href and employee.
+	            * Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
+	            * */
+	            /* <Employee key={employee._links.self.href} employee={employee}/>
+	            */
 	
-	                    /*
-	                    * This shows a new React component (note the uppercase format) being created along with two properties: key and data. These are supplied the values from employee._links.self.href and employee.
-	                    * Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
-	                    * */
-	                    React.createElement(Employee, { key: employee._links.self.href, employee: employee })
-	                );
-	            }
 	            /*
 	            Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
 	             */
-	            );
-	            /*
-	            Finally, you return an HTML table wrapped around the array of employees built with mapping.
-	             */
 	            return React.createElement(
-	                'table',
+	                'div',
 	                null,
+	                React.createElement('input', { ref: 'pageSize', defaultValue: this.props.pageSize, onInput: this.handleInput }),
 	                React.createElement(
-	                    'tbody',
+	                    'table',
 	                    null,
 	                    React.createElement(
-	                        'tr',
+	                        'tbody',
 	                        null,
 	                        React.createElement(
-	                            'th',
+	                            'tr',
 	                            null,
-	                            'First Name'
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'First Name'
+	                            ),
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'Last Name'
+	                            ),
+	                            React.createElement(
+	                                'th',
+	                                null,
+	                                'Description'
+	                            ),
+	                            React.createElement('th', null)
 	                        ),
-	                        React.createElement(
-	                            'th',
-	                            null,
-	                            'Last Name'
-	                        ),
-	                        React.createElement(
-	                            'th',
-	                            null,
-	                            'Description'
-	                        )
-	                    ),
-	                    employees
+	                        employees
+	                    )
+	                ),
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    navLinks
 	                )
 	            );
-	            /*
-	            Worried about mixing logic with your structure? React’s APIs encourage nice, declarative structure combined with state and properties. Instead of mixing a bunch of unrelated JavaScript and HTML, React encourages building simple components with small bits of related state and properties that work well together. It lets you look at a single component and understand the design. Then they are easy to combine together for bigger structures.
-	             */
 	        }
+	        // end::employee-list-render[]
+	        /*
+	        Finally, you return an HTML table wrapped around the array of employees built with mapping.
+	         */
+	        /*        return (
+	                    <table>
+	                        <tbody>
+	                        <tr>
+	                            <th>First Name</th>
+	                            <th>Last Name</th>
+	                            <th>Description</th>
+	                        </tr>
+	                        {employees}
+	                        </tbody>
+	                    </table>
+	                )*/
+	        /*
+	        Worried about mixing logic with your structure? React’s APIs encourage nice, declarative structure combined with state and properties. Instead of mixing a bunch of unrelated JavaScript and HTML, React encourages building simple components with small bits of related state and properties that work well together. It lets you look at a single component and understand the design. Then they are easy to combine together for bigger structures.
+	         */
+	
 	    }]);
 	
 	    return EmployeeList;
@@ -314,13 +454,27 @@
 	var Employee = function (_React$Component3) {
 	    _inherits(Employee, _React$Component3);
 	
-	    function Employee() {
+	    /*This updated version of the Employee component shows an extra entry at the end of the row, a delete button. It is registered to invoke this.handleDelete when clicked upon. The handleDelete() function can then invoke the callback passed down while supplying the contextually important this.props.employee record.*/
+	
+	    /*This shows again that it is easiest to manage state in the top component, in one place. This might not always be the case, but oftentimes, managing state in one place makes it easier to keep straight and simpler. By invoking the callback with component-specific details (this.props.onDelete(this.props.employee)), it is very easy to orchestrate behavior between components.*/
+	    function Employee(props) {
 	        _classCallCheck(this, Employee);
 	
-	        return _possibleConstructorReturn(this, (Employee.__proto__ || Object.getPrototypeOf(Employee)).apply(this, arguments));
+	        var _this8 = _possibleConstructorReturn(this, (Employee.__proto__ || Object.getPrototypeOf(Employee)).call(this, props));
+	
+	        _this8.handleDelete = _this8.handleDelete.bind(_this8);
+	        return _this8;
 	    }
+	    /*Deleting entries is much easier. Get a hold of its HAL-based record and apply DELETE to its self link.*/
+	
 	
 	    _createClass(Employee, [{
+	        key: 'handleDelete',
+	        value: function handleDelete() {
+	            /*Tracing the onDelete() function back to the top at App.onDelete, you can see how it operates*/
+	            this.props.onDelete(this.props.employee);
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return (
@@ -344,6 +498,15 @@
 	                        'td',
 	                        null,
 	                        this.props.employee.description
+	                    ),
+	                    React.createElement(
+	                        'td',
+	                        null,
+	                        React.createElement(
+	                            'button',
+	                            { onClick: this.handleDelete },
+	                            'Delete'
+	                        )
 	                    )
 	                )
 	            );
@@ -352,6 +515,110 @@
 	
 	    return Employee;
 	}(React.Component);
+	// tag::create-dialog[]
+	
+	
+	var CreateDialog = function (_React$Component4) {
+	    _inherits(CreateDialog, _React$Component4);
+	
+	    function CreateDialog(props) {
+	        _classCallCheck(this, CreateDialog);
+	
+	        var _this9 = _possibleConstructorReturn(this, (CreateDialog.__proto__ || Object.getPrototypeOf(CreateDialog)).call(this, props));
+	
+	        _this9.handleSubmit = _this9.handleSubmit.bind(_this9);
+	        return _this9;
+	    }
+	
+	    _createClass(CreateDialog, [{
+	        key: 'handleSubmit',
+	        value: function handleSubmit(e) {
+	            var _this10 = this;
+	
+	            /*The handleSubmit() function first stops the event from bubbling further up the hierarchy.*/
+	            e.preventDefault();
+	            var newEmployee = {};
+	            /*It then uses the same JSON Schema attribute property to find each <input> using React.findDOMNode(this.refs[attribute])*/
+	            this.props.attributes.forEach(function (attribute) {
+	                /*this.refs is a way to reach out and grab a particular React component by name. In that sense, you are ONLY getting the virtual DOM component. To grab the actual DOM element you need to use React.findDOMNode().*/
+	                newEmployee[attribute] = ReactDOM.findDOMNode(_this10.refs[attribute]).value.trim();
+	            });
+	            /*After iterating over every input and building up the newEmployee object, we invoke a callback to onCreate() the new employee. This function is up top inside App.onCreate and was provided to this React component as another property.*/
+	            this.props.onCreate(newEmployee);
+	
+	            // clear out the dialog's inputs
+	            this.props.attributes.forEach(function (attribute) {
+	                ReactDOM.findDOMNode(_this10.refs[attribute]).value = '';
+	            });
+	
+	            // Navigate away from the dialog to hide it.
+	            window.location = "#";
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            /*
+	            Your code maps over the JSON Schema data found in the attributes property and converts it into an array of <p><input></p> elements.
+	             */
+	            var inputs = this.props.attributes.map(function (attribute) {
+	                return (
+	                    /*
+	                    key is again needed by React to distinguish between multiple child nodes. It’s a simple text-based entry field.
+	                     */
+	                    React.createElement(
+	                        'p',
+	                        { key: attribute },
+	                        React.createElement('input', { type: 'text', placeholder: attribute, ref: attribute, className: 'field' })
+	                    )
+	                );
+	            });
+	
+	            return (
+	                /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
+	                React.createElement(
+	                    'div',
+	                    null,
+	                    React.createElement(
+	                        'a',
+	                        { href: '#createEmployee' },
+	                        'Create'
+	                    ),
+	                    React.createElement(
+	                        'div',
+	                        { id: 'createEmployee', className: 'modalDialog' },
+	                        React.createElement(
+	                            'div',
+	                            null,
+	                            React.createElement(
+	                                'a',
+	                                { href: '#', title: 'Close', className: 'close' },
+	                                'X'
+	                            ),
+	                            React.createElement(
+	                                'h2',
+	                                null,
+	                                'Create new employee'
+	                            ),
+	                            React.createElement(
+	                                'form',
+	                                null,
+	                                inputs,
+	                                React.createElement(
+	                                    'button',
+	                                    { onClick: this.handleSubmit },
+	                                    'Create'
+	                                )
+	                            )
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+	
+	    return CreateDialog;
+	}(React.Component);
+	// end::create-dialog[]
 	
 	ReactDOM.render(React.createElement(App, null), document.getElementById('react'));
 
