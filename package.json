@@ -1,6 +1,6 @@
 {
   "name": "sbRct1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "_____ Code put together from spring.io guide at https://spring.io/guides/tutorials/react-and-spring-data-rest/ Files contain comments from the guide explaining code, throughout _____",
   "main": "webpack.config.js",
   "dependencies": {
