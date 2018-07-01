@@ -42,6 +42,7 @@ class App extends React.Component {
 		this.onCreate = this.onCreate.bind(this);
 		this.onDelete = this.onDelete.bind(this);
 		this.onNavigate = this.onNavigate.bind(this);
+		this.buttonBetty = ButtonBetty();
 	}
 
     // tag::follow-2[]
@@ -169,11 +170,33 @@ class App extends React.Component {
                               onNavigate={this.onNavigate}
                               onDelete={this.onDelete}
                               updatePageSize={this.updatePageSize}/>
+                <ButtonBetty />
+
             </div>
         )
     }
 }
+/*generic component to test adding to DOM*/
+class ButtonBetty extends React.Component {
+    state = { counter: 1 };
 
+    handleClick = () => {
+        console.log('Button is clicked!!');
+        this.setState({
+            counter: this.state.counter + 1
+        });
+    };
+
+    render() {
+        return (
+            <button onClick={this.handleClick}>
+                {this.state.counter}
+            </button>
+        );
+    }
+}
+
+ReactDOM.render(<Button />, mountNode);
 // tag::create-dialog[]
 class CreateDialog extends React.Component {
 
@@ -401,6 +424,6 @@ class Employee extends React.Component{
 
 
 ReactDOM.render(
-    <App />,
+    <App />, <ButtonBetty/>,
     document.getElementById('react')
 )
