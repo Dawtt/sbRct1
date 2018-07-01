@@ -1,6 +1,7 @@
-package com.basementtrolls.payroll;
+package com.basementtrolls.usertools;
 
 
+import com.basementtrolls.payroll.Employee;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 
