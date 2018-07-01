@@ -1,4 +1,7 @@
+# REACT TESTING VERSION
 
+Note this branch has a lot of randomish things added to work on react.
+Be extremely careful if planning to merge.
 
 
 
