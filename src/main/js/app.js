@@ -6,9 +6,7 @@ const ReactDOM = require('react-dom');
 /*
 In the App component, an array of employees is fetched from the Spring Data REST backend and stored in this component’s state data.
 React components have two types of data: state and properties.
-
 State is data that the component is expected to handle itself. It is also data that can fluctuate and change. To read the state, you use this.state. To update it, you use this.setState(). Every time this.setState() is called, React updates the state, calculates a diff between the previous state and the new state, and injects a set of changes to the DOM on the page. This results a fast and efficient updates to your UI.
-
 The common convention is to initialize state with all your attributes empty in the constructor. Then you lookup data from the server using componentDidMount and populate your attributes. From there on, updates can be driven by user action or other events.
 Properties encompass data that is passed into the component. Properties do NOT change but are instead fixed values. To set them, you assign them to attributes when creating a new component and you’ll soon see.
 JavaScript doesn’t lock down data structures like other languages. You can try to subvert properties by assigning values, but this doesn’t work with React’s differential engine and should be avoided.
@@ -32,8 +30,7 @@ class Foo extends React.Component{…​} is the method to create a React compon
 */
 class App extends React.Component {
 
-	constructor(props) {
-	}
+    constructor(props) {
         super(props);
         this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
         this.updatePageSize = this.updatePageSize.bind(this);
@@ -138,9 +135,7 @@ class App extends React.Component {
 
 
     // tag::follow-1[]
-	/*
-	*/
-	componentDidMount() {
+    /*
     componentDidMount is the API invoked after React renders a component in the DOM.
     */
     componentDidMount() {
@@ -168,25 +163,12 @@ class App extends React.Component {
                               onNavigate={this.onNavigate}
                               onDelete={this.onDelete}
                               updatePageSize={this.updatePageSize}/>
-                <ButtonBetty />
 
             </div>
         )
     }
 }
-/*generic component to test adding to DOM*/
-class ButtonBetty extends React.Component {
-    state = { counter: 1 };
-    handleClick = () => {
-        console.log('Button is clicked!!');
-        this.setState({
-            counter: this.state.counter + 1
-        });
-    };
-    }
-}
 
-ReactDOM.render(<Button />, mountNode);
 // tag::create-dialog[]
 class CreateDialog extends React.Component {
 
@@ -227,8 +209,7 @@ class CreateDialog extends React.Component {
             /*Inside this component’s top-level <div> is an anchor tag and another <div>. The anchor tag is the button to open the dialog. And the nested <div> is the hidden dialog itself. In this example, you are use pure HTML5 and CSS3. No JavaScript at all! */
             <div>
                 <a href="#createEmployee">Create</a>
-
-                {/*Nestled inside <div id="createEmployee"> is a form where your dynamic list of input fields are injected followed by the Create button. That button has an onClick={this.handleSubmit} event handler. This is the React way of registering an event handler.*/}
+                    /*Nestled inside <div id="createEmployee"> is a form where your dynamic list of input fields are injected followed by the Create button. That button has an onClick={this.handleSubmit} event handler. This is the React way of registering an event handler.*/
                 <div id="createEmployee" className="modalDialog">
                     <div>
                         <a href="#" title="Close" className="close">X</a>
@@ -331,17 +312,16 @@ class EmployeeList extends React.Component{
         Using JavaScript’s map function, this.props.employees is transformed from an array of employee records into an array of <Element /> React components
         * */
         //var employees = this.props.employees.map(employee =>
-			/*
-			* This shows a new React component (note the uppercase format) being created along with two properties: key and data. These are supplied the values from employee._links.self.href and employee.
-			* Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
-			* */
-            /* <Employee key={employee._links.self.href} employee={employee}/>
-            */
+        /*
+        * This shows a new React component (note the uppercase format) being created along with two properties: key and data. These are supplied the values from employee._links.self.href and employee.
+        * Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
+        * */
+        /* <Employee key={employee._links.self.href} employee={employee}/>
+        */
 
-			/*
-			Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
         /*
         Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
+         */
         return (
             <div>
                 <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handleInput}/>
@@ -363,14 +343,6 @@ class EmployeeList extends React.Component{
         )
     }
     // end::employee-list-render[]
-        Finally, you return an HTML table wrapped around the array of employees built with mapping.
-         */
-/*        return (
-            <table>
-                <tbody>
-                <tr>
-        )*/
-		/*
     /*
     Finally, you return an HTML table wrapped around the array of employees built with mapping.
      */
