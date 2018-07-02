@@ -1,5 +1,5 @@
 var path = require('path');
-
+var node_dir = __dirname + '/node_modules';
 
 /*
 This webpack configuration file does the following:
@@ -26,7 +26,7 @@ module.exports = {
             {
                 test: path.join(__dirname, '.'),
                 exclude: /(node_modules)/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 query: {
                     cacheDirectory: true,
                     presets: ['es2015', 'react']

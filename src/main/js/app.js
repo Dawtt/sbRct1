@@ -1,21 +1,18 @@
 'use strict';
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 
 /*
 In the App component, an array of employees is fetched from the Spring Data REST backend and stored in this component’s state data.
-
 React components have two types of data: state and properties.
 
 State is data that the component is expected to handle itself. It is also data that can fluctuate and change. To read the state, you use this.state. To update it, you use this.setState(). Every time this.setState() is called, React updates the state, calculates a diff between the previous state and the new state, and injects a set of changes to the DOM on the page. This results a fast and efficient updates to your UI.
 
 The common convention is to initialize state with all your attributes empty in the constructor. Then you lookup data from the server using componentDidMount and populate your attributes. From there on, updates can be driven by user action or other events.
-
 Properties encompass data that is passed into the component. Properties do NOT change but are instead fixed values. To set them, you assign them to attributes when creating a new component and you’ll soon see.
-
 JavaScript doesn’t lock down data structures like other languages. You can try to subvert properties by assigning values, but this doesn’t work with React’s differential engine and should be avoided.
 In this code, the function loads data via client, a Promise compliant instance of rest.js. When it is done retrieving from /api/employees, it then invokes the function inside done() and set’s the state based on it’s HAL document (response.entity._embedded.employees). You might remember the structure of curl /api/employees earlier and see how it maps onto this structure.
-
 When the state is updated, the render() function is invoked by the framework. The employee state data is included in creation of the <EmployeeList /> React component as an input parameter.
  */
 /*
@@ -36,14 +33,14 @@ class Foo extends React.Component{…​} is the method to create a React compon
 class App extends React.Component {
 
 	constructor(props) {
-		super(props);
-		this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
-		this.updatePageSize = this.updatePageSize.bind(this);
-		this.onCreate = this.onCreate.bind(this);
-		this.onDelete = this.onDelete.bind(this);
-		this.onNavigate = this.onNavigate.bind(this);
-		this.buttonBetty = ButtonBetty();
 	}
+        super(props);
+        this.state = {employees: [], attributes: [], pageSize: 2, links: {}};
+        this.updatePageSize = this.updatePageSize.bind(this);
+        this.onCreate = this.onCreate.bind(this);
+        this.onDelete = this.onDelete.bind(this);
+        this.onNavigate = this.onNavigate.bind(this);
+    }
 
     // tag::follow-2[]
     loadFromServer(pageSize) {
@@ -70,7 +67,7 @@ class App extends React.Component {
 
     // tag::create[]
     onCreate(newEmployee) {
-	    /*Once again, use the follow() function to navigate to the employees resource where POST operations are performed. In this case, there was no need to apply any parameters, so the string-based array of rels is fine. In this situation, the POST call is returned. This allows the next then() clause to handle processing the outcome of the POST.*/
+        /*Once again, use the follow() function to navigate to the employees resource where POST operations are performed. In this case, there was no need to apply any parameters, so the string-based array of rels is fine. In this situation, the POST call is returned. This allows the next then() clause to handle processing the outcome of the POST.*/
         follow(client, root, ['employees']).then(employeeCollection => {
             return client({
                 method: 'POST',
@@ -142,24 +139,25 @@ class App extends React.Component {
 
     // tag::follow-1[]
 	/*
-	componentDidMount is the API invoked after React renders a component in the DOM.
 	*/
 	componentDidMount() {
+    componentDidMount is the API invoked after React renders a component in the DOM.
+    */
+    componentDidMount() {
 
         /*
         In this code, the function loads data via client, a Promise compliant instance of rest.js. When it is done retrieving from /api/employees, it then invokes the function inside done() and set’s the state based on it’s HAL document (response.entity._embedded.employees). You might remember the structure of curl /api/employees earlier and see how it maps onto this structure.
-
 		client({method: 'GET', path: '/api/employees'}).done(response => {
 			this.setState({employees: response.entity._embedded.employees});
 		});
         */
         this.loadFromServer(this.state.pageSize);
 
-	}
+    }
     // end::follow-1[]
-	/*
-	render is the API to "draw" the component on the screen.
-	 */
+    /*
+    render is the API to "draw" the component on the screen.
+     */
     render() {
         return (
             <div>
@@ -179,20 +177,12 @@ class App extends React.Component {
 /*generic component to test adding to DOM*/
 class ButtonBetty extends React.Component {
     state = { counter: 1 };
-
     handleClick = () => {
         console.log('Button is clicked!!');
         this.setState({
             counter: this.state.counter + 1
         });
     };
-
-    render() {
-        return (
-            <button onClick={this.handleClick}>
-                {this.state.counter}
-            </button>
-        );
     }
 }
 
@@ -350,7 +340,8 @@ class EmployeeList extends React.Component{
 
 			/*
 			Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
-			 */
+        /*
+        Whenever you work with Spring Data REST, the self link IS the key for a given resource. React needs a unique identifer for child nodes, and _links.self.href is perfect.
         return (
             <div>
                 <input ref="pageSize" defaultValue={this.props.pageSize} onInput={this.handleInput}/>
@@ -372,28 +363,36 @@ class EmployeeList extends React.Component{
         )
     }
     // end::employee-list-render[]
-        /*
         Finally, you return an HTML table wrapped around the array of employees built with mapping.
          */
 /*        return (
             <table>
                 <tbody>
                 <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Description</th>
-                </tr>
-                {employees}
-                </tbody>
-            </table>
         )*/
 		/*
-		Worried about mixing logic with your structure? React’s APIs encourage nice, declarative structure combined with state and properties. Instead of mixing a bunch of unrelated JavaScript and HTML, React encourages building simple components with small bits of related state and properties that work well together. It lets you look at a single component and understand the design. Then they are easy to combine together for bigger structures.
-		 */
+    /*
+    Finally, you return an HTML table wrapped around the array of employees built with mapping.
+     */
+    /*        return (
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Description</th>
+                    </tr>
+                    {employees}
+                    </tbody>
+                </table>
+            )*/
+    /*
+    Worried about mixing logic with your structure? React’s APIs encourage nice, declarative structure combined with state and properties. Instead of mixing a bunch of unrelated JavaScript and HTML, React encourages building simple components with small bits of related state and properties that work well together. It lets you look at a single component and understand the design. Then they are easy to combine together for bigger structures.
+     */
 }
 
 class Employee extends React.Component{
-/*This updated version of the Employee component shows an extra entry at the end of the row, a delete button. It is registered to invoke this.handleDelete when clicked upon. The handleDelete() function can then invoke the callback passed down while supplying the contextually important this.props.employee record.*/
+    /*This updated version of the Employee component shows an extra entry at the end of the row, a delete button. It is registered to invoke this.handleDelete when clicked upon. The handleDelete() function can then invoke the callback passed down while supplying the contextually important this.props.employee record.*/
 
     /*This shows again that it is easiest to manage state in the top component, in one place. This might not always be the case, but oftentimes, managing state in one place makes it easier to keep straight and simpler. By invoking the callback with component-specific details (this.props.onDelete(this.props.employee)), it is very easy to orchestrate behavior between components.*/
     constructor(props) {
@@ -407,9 +406,9 @@ class Employee extends React.Component{
     }
     render() {
         return (
-        	/*
-        	a single HTML table row wrapped around the employee’s three properties. The property itself is this.props.employee. Notice how passing in a JavaScript object makes it easy to pass along data fetched from the server?
-        	 */
+            /*
+            a single HTML table row wrapped around the employee’s three properties. The property itself is this.props.employee. Notice how passing in a JavaScript object makes it easy to pass along data fetched from the server?
+             */
             <tr>
                 <td>{this.props.employee.firstName}</td>
                 <td>{this.props.employee.lastName}</td>
@@ -424,6 +423,6 @@ class Employee extends React.Component{
 
 
 ReactDOM.render(
-    <App />, <ButtonBetty/>,
+    <App />,
     document.getElementById('react')
 )

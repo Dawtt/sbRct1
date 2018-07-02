@@ -18,6 +18,12 @@ Running Notes:
         *this will run webpack
     /sbrct1$ mvn spring-boot:run
     open localhost:8080
+    
+    npm problem commands:  ( https://stackoverflow.com/questions/9023672/how-do-i-resolve-cannot-find-module-error-using-node-js )
+        sbrct1$ rm -r node_modules      delete the node_modules directory
+        sbrct1$ sudo node cache clear --force       try without this first, uncertain of total 
+        sbrct1$ sudo node install
+        sbrct1$ npm run-script build
 
 -----
 Production Notes:
