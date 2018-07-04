@@ -13,7 +13,7 @@ Compile ALL of the JavaScript bits into ./src/main/resources/static/built/bundle
 It hooks into the babel engine, using both es2015 and react presets, in order to compile ES6 React code into a format able to be run in any standard browser.
  */
 module.exports = {
-    entry: './src/main/js/app.js',
+    entry: './src/main/js/PApp.js',
     devtool: 'sourcemaps',
     cache: true,
     debug: true,
