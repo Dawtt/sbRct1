@@ -204,9 +204,55 @@ Added to webpack.config.js
 Same error.
 Added items from https://webpack.js.org/configuration/ onto config
 Same error.
+deleted:
+    cache: true,
+Same error.
 
 
+added to config:
+ >       context: path.resolve(__dirname, "app"), // string (absolute path!)
+        // the home directory for webpack
+        // the entry and module.rules.loader option
+        //   is resolved relative to this directory
+
+> Can't resolve './src/main/js/PApp.js
 
 
+Moving webpack.config.js & package.json to oauth1, a simple create-react-app.
 
+Added:
 
+    "css-loader": "^0.28.11",
+    "style-loader": "^0.21.0",
+    "file-loader": "^1.1.11"
+    
+    module.exports = {
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    exclude: /node_modules/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            presets: ["@babel/preset-env"]
+                        }
+                    }
+                },
+                {
+                    test: /\.css$/,
+                    use: ["style-loader", "css-loader"]
+                },
+                {
+                    test: /\.(png|svg|jpg|gif)$/,
+                    use: ['file-loader']
+                }
+            ]
+        }
+    };
+    
+    
+Changed the babel-loader preset after webpack errors about not using @babel somewhere with babel-preset-env
+
+##FINALLY BUILT (in oauth1)
+Now try sbrct1 again.

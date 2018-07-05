@@ -93,7 +93,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-throw new Error("Module parse failed: Unexpected token (10:2)\nYou may need an appropriate loader to handle this file type.\n| \t\treturn\n| \n> \t\t<Fragment>\n| \t\t\t<p> fragment p1 </p>\n| \t\t\t<p> fragment p2 </p>");
+throw new Error("Module parse failed: Unexpected token (9:2)\nYou may need an appropriate loader to handle this file type.\n| \trender() {\n| \t\treturn(\n> \t\t<>\n| \t\t\t<p> fragment p1 </p>\n| \t\t\t<p> fragment p2 </p>");
 
 /***/ })
 
