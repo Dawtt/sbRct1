@@ -5,9 +5,11 @@ import Dave from './Dave.js';
 
 export default class extends Component {
 	render() {
-		return <Fragment>
-            <Header />
-			<Body />
+		return
+
+		<Fragment>
+			<p> fragment p1 </p>
+			<p> fragment p2 </p>
 
 		</Fragment>
 	}
