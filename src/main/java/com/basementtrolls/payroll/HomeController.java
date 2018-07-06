@@ -13,8 +13,7 @@ public class HomeController {
 	@RequestMapping flags the index() method to support the / route.
 	*/
 	@RequestMapping(value = "/")
-	public String index() {
+	public String index(){
 		return "index";
 	}
-
 }

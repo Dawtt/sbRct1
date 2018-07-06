@@ -9,7 +9,7 @@
 - full run (commands from root directory mostly)
     - `yarn install` or `npm install`: install dependencies for node.js based on `package.json`.
     - `react-scripts build` builds the JS codebase which the node server will serve. This is code from Facebook's `create-react-app` which includes webpack.
-    - `mvn clean` compiles java code & dependencies
+    - `mvn clean compile` compiles java code & dependencies
     - `mvn spring:boot run` should run the backend java server & front-end node server.
 - `/package.json` 
     - lists dependencies for node.
@@ -23,11 +23,17 @@
 ---
 
 ## Issues
+-   `./src/main/resources/static/built/bundle.js`
+    - Spring's webpack config sends the bundle here.
+    - could point react-script's index.html here?
+    - where does spring server have this?
 - pom.xml testing code
     - Removed testing code from pom.xml to stop some conflicts. Uncertain if may cause problems.
+    - Removed installation of npm & node, node install, & webpack
 
-
-
+## Important changes to defaults:
+  - public class HomeController's index()
+  - Spring's `/` changed to `/public` By default, Spring Data REST hosts a root collection of links at /. Because you will host a web UI on the same path, you need to change the root URI.
 
 Code put together from spring.io guide at
 https://spring.io/guides/tutorials/react-and-spring-data-rest/
