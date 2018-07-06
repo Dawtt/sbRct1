@@ -1,18 +1,25 @@
-import React, { Component, Fragment} from 'react';
-import { Header, Body, Footer} from './index.js';
-import Dave from './Dave.js';
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import './App.css';
 
+class App extends Component {
+    render() {
+        return (
+            <React.Fragment>
+                <h2> PApp's fragment header </h2>
+                <div className="App">
+                    <header className="App-header">
+                        <img src={logo} className="App-logo" alt="logo" />
+                        <h1 className="App-title">Welcome to React</h1>
+                    </header>
+                    <p className="App-intro">
+                        To get started, edit <code>src/App.js</code> and save to reload.
+                    </p>
+                </div>
 
-
-
-
-export default class extends Component {
-	render() {
-		return(
-		<>
-			<p> fragment p1 </p>
-			<p> fragment p2 </p>
-		</>
-		);
-	}
+            </React.Fragment>
+        );
+    }
 }
+
+export default App;
