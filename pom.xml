@@ -10,7 +10,7 @@
 	<packaging>jar</packaging>
 
 	<name>sbRct1</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Basement Tunes Practice Building</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

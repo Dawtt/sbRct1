@@ -4,6 +4,21 @@
 
 
 # sbRct1
+
+##Important Configuration Files & Commands
+- full run (commands from root directory mostly)
+    - `yarn install` or `npm install`: install dependencies for node.js based on `package.json`.
+    - `react-scripts build` builds the JS codebase which the node server will serve. This is code from Facebook's `create-react-app` which includes webpack.
+    - `mvn clean` compiles java code & dependencies
+    - `mvn spring:boot run` should run the backend java server & front-end node server.
+- `/package.json` 
+    - lists dependencies for node.
+    - `npm install` or `yarn install` will create the `/node_modules` directory containing node dependencies.
+    - `scripts` is a section which has scripted commands. Intellij can run these from the file itself.
+- `pom.xml` The configuration file for Spring Boot.
+- `webpack.config` Configuration file for webpack. Facebook's `react-scripts build` does some kind of magic abstraction with this. If you `eject` from Facebook's scripts, the build files will be placed into the app without that higher abstraction.
+- `/src/main/resources/templates/index.html` The default start page from Spring.
+- `/public/index.html` The default start page from `create-react-app`.
 _____
 Code put together from spring.io guide at
 https://spring.io/guides/tutorials/react-and-spring-data-rest/
